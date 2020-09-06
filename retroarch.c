@@ -12058,9 +12058,21 @@ void dir_set(enum rarch_dir_type type, const char *path)
 void dir_check_defaults(void)
 {
    unsigned i;
+   static char current_directory[PATH_MAX_LENGTH];
+   static char str[PATH_MAX_LENGTH];
+
    /* early return for people with a custom folder setup
       so it doesn't create unnecessary directories
     */
+
+   if (string_is_empty(current_directory))
+   {
+      getcwd(current_directory, PATH_MAX_LENGTH - 1);
+      fill_pathname_join(str, current_directory,
+         "custom.ini", PATH_MAX_LENGTH - 1);
+   }
+
+
 #if defined(ORBIS) || defined(ANDROID)
    if (path_is_valid("host0:app/custom.ini"))
 #elif defined(__WINRT__)
@@ -12068,7 +12080,7 @@ void dir_check_defaults(void)
    fill_pathname_expand_special(path, "~\\custom.ini", MAX_PATH);
    if (path_is_valid(path))
 #else
-   if (path_is_valid("custom.ini"))
+   if (path_is_valid(str))
 #endif
       return;
 
